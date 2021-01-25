@@ -33,4 +33,33 @@ fn main() {
 
    let matches = app.get_matches();
 
+
+   // load user input into variables
+   let encrypt = matches.is_present("encrypt");
+   let decrypt = matches.is_present("decrypt");
+   let compress = matches.is_present("compress");
+   let inplace = matches.is_present("inplace");
+   let path: &str;
+
+   // if path, execute on path
+   if matches.is_present("path") {
+      path = matches.value_of("path").unwrap();
+   } else { // else execute in current path
+      path = "./";
+   }
+
+
+   if encrypt && !decrypt { // encrypt
+
+   } else if decrypt && !encrypt { // decrypt
+
+   } else { // invalid user input
+      println!("Invalid user input: Cannot encrypt and decrypt at same time.")
+      return;
+   }
+
+
+
+
+   loop{}
 }
