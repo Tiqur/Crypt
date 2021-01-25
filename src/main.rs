@@ -1,8 +1,10 @@
 use std::env;
 use std::fs;
+use std::str;
+use std::io::Cursor;
+extern crate base64;
 extern crate clap;
 use clap::{Arg, App};
-use std::borrow::{Borrow, BorrowMut};
 
 fn main() {
    let app = App::new("Crypt")
@@ -73,22 +75,39 @@ fn enterDir(pathDir: String, inplace: bool, compress: bool, depth: i32) {
       let mut fileName = path.as_ref().unwrap().clone().file_name().into_string().unwrap();
       let isFile = path.as_ref().unwrap().clone().file_type().unwrap().is_file();
       let isDir = path.as_ref().unwrap().clone().file_type().unwrap().is_dir();
+      let mut path = fileName.clone();
 
       if depth > 0 {
-         fileName = format!("{}/{}", pathDir, fileName);
+         path = format!("{}/{}", pathDir, fileName);
       }
 
       if isFile {
-         encryptFile(fileName, inplace, compress);
+         encryptFile(path, fileName, inplace, compress);
       } else if isDir {
          println!("Entering Directory: {}", fileName);
-         enterDir(fileName, inplace, compress, depth+1);
+         enterDir(path, inplace, compress, depth+1);
+
+         // replace folder with encrypted data to continue
+         if !inplace {
+
+         }
       } else { // unable to encrypt file
          println!("[ERROR] Unable to encrypt: {}", fileName);
       }
    }
 }
 
-fn encryptFile(pathDir: String, inplace: bool, compress: bool) {
+fn encryptFile(pathDir: String, fileName: String, inplace: bool, compress: bool) {
    println!("Encrypting File: {}", pathDir);
+
+   // get buffer from file
+   let dataBuffer = fs::read(pathDir).unwrap();
+
+   // convert to base64
+   let mut b64data = base64::encode(dataBuffer);
+
+   // append filename to end
+   b64data = format!("{},{}", b64data, fileName);
+
+   println!("{}", b64data)
 }
