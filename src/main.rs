@@ -4,8 +4,16 @@ use std::str;
 use std::io::{Cursor, Write};
 extern crate base64;
 extern crate clap;
+extern crate flate2;
 use clap::{Arg, App};
 use std::fs::OpenOptions;
+use flate2::Compression;
+
+enum Mode {
+   Encrypt,
+   Decrypt,
+   Merge
+}
 
 fn main() {
    let app = App::new("Crypt")
@@ -61,14 +69,14 @@ fn main() {
 
    }
 
-   enterDir(String::from(path), inplace, compress, 0);
+   enterDir(String::from(path), compress, 0, Mode::Encrypt);
+   enterDir(String::from(path), compress, 0, Mode::Merge);
    println!("Done!");
    loop {}
 }
 
 
-
-fn enterDir(pathDir: String, inplace: bool, compress: bool, depth: i32) {
+fn enterDir(pathDir: String, compress: bool, depth: i32, mode: Mode) {
    let mut paths = fs::read_dir(pathDir.clone()).unwrap();
    let mut fileIndex = 0;
    for path in paths {
@@ -81,24 +89,26 @@ fn enterDir(pathDir: String, inplace: bool, compress: bool, depth: i32) {
          path = format!("{}/{}", pathDir, fileName);
       }
 
-      if isFile && fileName != "Crypt.exe"{
-         fileIndex+=1;
-         encryptFile(path, fileName, inplace, compress, fileIndex);
-      } else if isDir {
-         println!("Entering Directory: {}", fileName);
-         enterDir(path, inplace, compress, depth+1);
-
-         // replace folder with encrypted data to continue
-         if !inplace {
-
+      match mode {
+         Mode::Encrypt => {
+            if isFile && fileName != "Crypt.exe" {
+               fileIndex+=1;
+               encryptFile(path, fileName, compress, fileIndex);
+            } else if isDir {
+               println!("Entering Directory: {}", fileName);
+               enterDir(path.clone(), compress, depth + 1, Mode::Encrypt);
+            } else { // unable to encrypt file
+               println!("[ERROR] Unable to encrypt: {}", fileName);
+            }
          }
-      } else { // unable to encrypt file
-         println!("[ERROR] Unable to encrypt: {}", fileName);
+         Mode::Decrypt => {}
+         Mode::Merge => {}
       }
+
    }
 }
 
-fn encryptFile(path: String, fileName: String, inplace: bool, compress: bool, fileIndex: i32) {
+fn encryptFile(path: String, fileName: String, compress: bool, fileIndex: i32) {
    println!("Encrypting File: {}", path);
 
    // get buffer from file
@@ -116,8 +126,6 @@ fn encryptFile(path: String, fileName: String, inplace: bool, compress: bool, fi
    */
 
 
-
-
    // https://stackoverflow.com/questions/37157926/is-there-a-method-like-javascripts-substr-in-rust
    trait StringUtils {
       fn substring(&self, start: usize, len: usize) -> Self;
@@ -129,7 +137,7 @@ fn encryptFile(path: String, fileName: String, inplace: bool, compress: bool, fi
       }
    }
 
-
+   // writing individual files to prevent potential running out of memory when dealing with EXTREMELY large folders
    // write encrypted contents to new file
    let mut newFileName = String::new();
 
@@ -145,3 +153,4 @@ fn encryptFile(path: String, fileName: String, inplace: bool, compress: bool, fi
    fs::remove_file(path).unwrap();
 
 }
+
