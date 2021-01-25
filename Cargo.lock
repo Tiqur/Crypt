@@ -6,14 +6,8 @@ version = "0.1.0"
 dependencies = [
  "base64",
  "clap",
- "flate2",
+ "libdeflater",
 ]
-
-[[package]]
-name = "adler"
-version = "0.2.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ee2a4ec343196209d6594e19543ae87a39f96d5534d7174822a3ad825dd6ed7e"
 
 [[package]]
 name = "ansi_term"
@@ -36,12 +30,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "autocfg"
-version = "1.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cdb031dd78e28731d87d56cc8ffef4a8f36ca26c38fe2de700543e627f8a464a"
-
-[[package]]
 name = "base64"
 version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -54,10 +42,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf1de2fe8c75bc145a2f577add951f8134889b4795d47466a54a5c846d691693"
 
 [[package]]
-name = "cfg-if"
-version = "1.0.0"
+name = "cc"
+version = "1.0.66"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
+checksum = "4c0496836a84f8d0495758516b8621a622beb77c0fed418570e50764093ced48"
 
 [[package]]
 name = "clap"
@@ -72,27 +60,6 @@ dependencies = [
  "textwrap",
  "unicode-width",
  "vec_map",
-]
-
-[[package]]
-name = "crc32fast"
-version = "1.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "81156fece84ab6a9f2afdb109ce3ae577e42b1228441eded99bd77f627953b1a"
-dependencies = [
- "cfg-if",
-]
-
-[[package]]
-name = "flate2"
-version = "1.0.19"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7411863d55df97a419aa64cb4d2f167103ea9d767e2c54a1868b7ac3f6b47129"
-dependencies = [
- "cfg-if",
- "crc32fast",
- "libc",
- "miniz_oxide",
 ]
 
 [[package]]
@@ -111,13 +78,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "89203f3fba0a3795506acaad8ebce3c80c0af93f994d5a1d7a0b1eeb23271929"
 
 [[package]]
-name = "miniz_oxide"
-version = "0.4.3"
+name = "libdeflate-sys"
+version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0f2d26ec3309788e423cfbf68ad1800f061638098d76a83681af979dc4eda19d"
+checksum = "4a95fa4be7085dd06a8296dcc3f399f12ab8b0309c157dcaa90669130b175b97"
 dependencies = [
- "adler",
- "autocfg",
+ "cc",
+]
+
+[[package]]
+name = "libdeflater"
+version = "0.7.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ccc147465654929bf7b56518cc46d11701ba290f4ff94398ae3f89f1663cf60f"
+dependencies = [
+ "libdeflate-sys",
 ]
 
 [[package]]

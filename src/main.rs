@@ -4,10 +4,9 @@ use std::str;
 use std::io::{Cursor, Write};
 extern crate base64;
 extern crate clap;
-extern crate flate2;
+extern crate libdeflater;
 use clap::{Arg, App};
-use std::fs::OpenOptions;
-use flate2::Compression;
+use libdeflater::{Compressor, CompressionLvl, Decompressor};
 
 enum Mode {
    Encrypt,
@@ -34,10 +33,11 @@ fn main() {
            .short("d")
            .long("decrypt")
            .help("Sets mode to 'decrypt'"))
-       .arg(Arg::with_name("compress")
+       .arg(Arg::with_name("compression")
            .short("c")
-           .long("compress")
-           .help("Enables file compression"))
+           .long("compression")
+           .multiple(true)
+           .help("Sets the level of compression"))
        .arg(Arg::with_name("inplace")
            .short("i")
            .long("inplace")
@@ -69,14 +69,14 @@ fn main() {
 
    }
 
-   enterDir(String::from(path), compress, 0, Mode::Encrypt);
-   enterDir(String::from(path), compress, 0, Mode::Merge);
+   enterDir(String::from(path), CompressionLvl::best(), 0, Mode::Encrypt);
+   enterDir(String::from(path), CompressionLvl::best(), 0, Mode::Merge);
    println!("Done!");
    loop {}
 }
 
 
-fn enterDir(pathDir: String, compress: bool, depth: i32, mode: Mode) {
+fn enterDir(pathDir: String, compress: CompressionLvl, depth: i32, mode: Mode) {
    let mut paths = fs::read_dir(pathDir.clone()).unwrap();
    let mut fileIndex = 0;
    for path in paths {
@@ -108,14 +108,49 @@ fn enterDir(pathDir: String, compress: bool, depth: i32, mode: Mode) {
    }
 }
 
-fn encryptFile(path: String, fileName: String, compress: bool, fileIndex: i32) {
+
+fn compressBuffer(bytes: Vec<u8>, compLevel: CompressionLvl) -> Vec<u8> {
+   let mut compressor = Compressor::new(compLevel);
+   let max_sz = compressor.gzip_compress_bound(bytes.len());
+   let mut compressed_data = Vec::new();
+   compressed_data.resize(max_sz, 0);
+   let actual_sz = compressor.gzip_compress(&bytes, &mut compressed_data).unwrap();
+   compressed_data.resize(actual_sz, 0);
+   return compressed_data;
+}
+
+fn decompressBuffer(bytes: Vec<u8>) -> Vec<u8> {
+
+   let isize = {
+      let isize_start = bytes.len() - 4;
+      let isize_bytes = &bytes[isize_start..];
+      let mut ret: u32 = isize_bytes[0] as u32;
+      ret |= (isize_bytes[1] as u32) << 8;
+      ret |= (isize_bytes[2] as u32) << 16;
+      ret |= (isize_bytes[3] as u32) << 26;
+      ret as usize
+   };
+
+   let mut decompressor = Decompressor::new();
+   let mut outbuf = Vec::new();
+   outbuf.resize(isize, 0);
+   decompressor.gzip_decompress(&bytes, &mut outbuf).unwrap();
+   return outbuf;
+}
+
+
+
+fn encryptFile(path: String, fileName: String, compress: CompressionLvl, fileIndex: i32) {
    println!("Encrypting File: {}", path);
 
    // get buffer from file
    let dataBuffer = fs::read(&path).unwrap();
 
+   // compress buffer
+   let compressedBuffer = compressBuffer(dataBuffer.clone(), compress);
+
    // convert to base64
-   let mut b64data = base64::encode(dataBuffer);
+   let mut b64data = base64::encode(compressedBuffer);
 
    // append filename to end
    b64data = format!("{},{}", b64data, fileName);
