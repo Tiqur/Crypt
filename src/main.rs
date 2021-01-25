@@ -2,6 +2,7 @@ use std::env;
 use std::fs;
 extern crate clap;
 use clap::{Arg, App};
+use std::borrow::{Borrow, BorrowMut};
 
 fn main() {
    let app = App::new("Crypt")
@@ -39,27 +40,55 @@ fn main() {
    let decrypt = matches.is_present("decrypt");
    let compress = matches.is_present("compress");
    let inplace = matches.is_present("inplace");
-   let path: &str;
+   let mut path: &str = "";
 
    // if path, execute on path
    if matches.is_present("path") {
       path = matches.value_of("path").unwrap();
-   } else { // else execute in current path
-      path = "./";
    }
 
-
-   if encrypt && !decrypt { // encrypt
-
-   } else if decrypt && !encrypt { // decrypt
-
-   } else { // invalid user input
-      println!("Invalid user input: Cannot encrypt and decrypt at same time.")
+   if encrypt && decrypt {
+      println!("Invalid user input: Cannot encrypt and decrypt at same time.");
       return;
    }
 
+   if encrypt {
+
+   } else {
+
+   }
+
+   enterDir(String::from(path), inplace, compress, 0);
+   println!("Done!");
+   loop {}
+}
 
 
 
-   loop{}
+fn enterDir(pathDir: String, inplace: bool, compress: bool, depth: i32) {
+   let mut paths = fs::read_dir(pathDir.clone()).unwrap();
+
+   for path in paths {
+
+      let mut fileName = path.as_ref().unwrap().clone().file_name().into_string().unwrap();
+      let isFile = path.as_ref().unwrap().clone().file_type().unwrap().is_file();
+      let isDir = path.as_ref().unwrap().clone().file_type().unwrap().is_dir();
+
+      if depth > 0 {
+         fileName = format!("{}/{}", pathDir, fileName);
+      }
+
+      if isFile {
+         encryptFile(fileName, inplace, compress);
+      } else if isDir {
+         println!("Entering Directory: {}", fileName);
+         enterDir(fileName, inplace, compress, depth+1);
+      } else { // unable to encrypt file
+         println!("[ERROR] Unable to encrypt: {}", fileName);
+      }
+   }
+}
+
+fn encryptFile(pathDir: String, inplace: bool, compress: bool) {
+   println!("Encrypting File: {}", pathDir);
 }
