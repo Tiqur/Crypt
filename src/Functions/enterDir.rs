@@ -20,16 +20,15 @@ pub fn enterDir(pathDir: String, compress: CompressionLvl, depth: i32, mode: Mod
 
         if isFile && fileName != "Crypt.exe" {
             match mode {
-                Mode::Encrypt => {
+                Mode::Encode => {
                     fileIndex+=1;
                     encodeFile(path, fileName, compress, fileIndex);
                 }
-                Mode::Decrypt => {
+                Mode::Decode => {
                     if fileName.ends_with(".crypt") {
                         decodeFile(path);
                     }
                 }
-                Mode::Merge => {}
             }
         } else if isDir {
             println!("Entering Directory: {}", fileName);
