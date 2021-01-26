@@ -42,11 +42,7 @@ fn main() {
            .short("c")
            .long("compression")
            .multiple(true)
-           .help("Sets the level of compression"))
-       .arg(Arg::with_name("inplace")
-           .short("i")
-           .long("inplace")
-           .help("Will encrypt/compress all files inplace"));
+           .help("Sets the level of compression"));
 
    let matches = app.get_matches();
 
@@ -55,7 +51,6 @@ fn main() {
    let encrypt = matches.is_present("encrypt");
    let decrypt = matches.is_present("decrypt");
    let compress = matches.is_present("compress");
-   let inplace = matches.is_present("inplace");
    let mut path: &str = "";
 
    // if path, execute on path
