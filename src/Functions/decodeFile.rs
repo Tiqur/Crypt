@@ -4,24 +4,24 @@ use crate::Functions::compressBuffer::compressBuffer;
 use std::io::Read;
 
 pub fn decodeFile(path: String) {
-    println!("Decrypting File: {}", path);
+    println!("Decoding File: {}", path);
 
     // get file buffer
     let mut encodedCompressedBuffer = fs::read(&path).unwrap();
 
-    // extract filename
-    let indexOfComma = encodedCompressedBuffer.iter().rposition(|r| r == &b',').unwrap()+1;
-    let bufferLen = encodedCompressedBuffer.len();
-    let filename = &encodedCompressedBuffer.clone()[indexOfComma..bufferLen];
-
-    // truncate to only hold file data
-    encodedCompressedBuffer.truncate(indexOfComma-1);
 
     // decode from base64
-    let compressedBuffer = base64::decode(encodedCompressedBuffer).unwrap();
+    let compressedBuffer = base64::decode(&encodedCompressedBuffer).unwrap();
 
     // decompress buffer
-    let dataBuffer = decompressBuffer(compressedBuffer);
+    let mut dataBuffer = decompressBuffer(compressedBuffer);
+
+    // extract filename
+    let indexOfComma = dataBuffer.iter().rposition(|r| r == &b',').unwrap()+1;
+    let filename = &dataBuffer.clone()[indexOfComma..dataBuffer.len()];
+
+    // truncate to only hold file data
+    dataBuffer.truncate(indexOfComma-1);
 
     // convert filename to str
     let strFilename = std::str::from_utf8(filename).unwrap();

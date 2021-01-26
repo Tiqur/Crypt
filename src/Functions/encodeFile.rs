@@ -15,19 +15,22 @@ impl StringUtils for String {
 }
 
 pub fn encodeFile(path: String, fileName: String, compress: CompressionLvl, fileIndex: i32) {
-    println!("Encrypting File: {}", path);
+    println!("Encoding File: {}", path);
 
     // get buffer from file
-    let dataBuffer = fs::read(&path).unwrap();
+    let mut dataBuffer = fs::read(&path).unwrap();
+
+    // append filename to end of buffer
+    dataBuffer.append(&mut Vec::from(format!(",{}", fileName)));
 
     // compress buffer
     let compressedBuffer = compressBuffer(dataBuffer.clone(), compress);
 
     // convert to base64
-    let mut encodedCompressedBuffer = base64::encode(compressedBuffer);
+    let encodedCompressedBuffer = base64::encode(compressedBuffer);
 
-    // append filename to end
-    encodedCompressedBuffer = format!("{},{}", encodedCompressedBuffer, fileName);
+    // // append filename to end
+    // encodedCompressedBuffer = format!("{},{}", encodedCompressedBuffer, fileName);
 
 
     // writing individual files to prevent potential running out of memory when dealing with EXTREMELY large folders
