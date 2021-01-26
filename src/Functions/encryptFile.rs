@@ -12,10 +12,10 @@ pub fn encryptFile(path: String, fileName: String, compress: CompressionLvl, fil
     let compressedBuffer = compressBuffer(dataBuffer.clone(), compress);
 
     // convert to base64
-    let mut b64data = base64::encode(compressedBuffer);
+    let mut encodedCompressedBuffer = base64::encode(compressedBuffer);
 
     // append filename to end
-    b64data = format!("{},{}", b64data, fileName);
+    encodedCompressedBuffer = format!("{},{}", encodedCompressedBuffer, fileName);
 
 
     /*
@@ -44,7 +44,7 @@ pub fn encryptFile(path: String, fileName: String, compress: CompressionLvl, fil
 
     newFileName.push_str(&*(fileIndex.to_string() + ".crypt"));
 
-    fs::write(newFileName, &b64data);
+    fs::write(newFileName, &encodedCompressedBuffer);
 
     // delete old file
     fs::remove_file(path).unwrap();

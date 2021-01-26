@@ -12,6 +12,7 @@ mod Functions;
 use crate::Functions::enterDir::enterDir;
 
 
+#[derive(Clone, Copy)]
 pub enum Mode {
    Encrypt,
    Decrypt,
@@ -72,9 +73,8 @@ fn main() {
    } else {
 
    }
-
-   enterDir(String::from(path), CompressionLvl::best(), 0, Mode::Encrypt);
-   enterDir(String::from(path), CompressionLvl::best(), 0, Mode::Merge);
+   let compressionLevel = CompressionLvl::best();
+   //enterDir(String::from(path), compressionLevel, 0, Mode::Encrypt);
+   enterDir(String::from(path), compressionLevel, 0, Mode::Decrypt);
    println!("Done!");
-   loop {}
 }
