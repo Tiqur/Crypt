@@ -1,8 +1,8 @@
 use libdeflater::CompressionLvl;
 use crate::Mode;
 use std::fs;
-use crate::Functions::encryptFile::encryptFile;
-use crate::Functions::decryptFile::decryptFile;
+use crate::Functions::encodeFile::encodeFile;
+use crate::Functions::decodeFile::decodeFile;
 
 pub fn enterDir(pathDir: String, compress: CompressionLvl, depth: i32, mode: Mode) {
     let mut paths = fs::read_dir(pathDir.clone()).unwrap();
@@ -22,11 +22,11 @@ pub fn enterDir(pathDir: String, compress: CompressionLvl, depth: i32, mode: Mod
             match mode {
                 Mode::Encrypt => {
                     fileIndex+=1;
-                    encryptFile(path, fileName, compress, fileIndex);
+                    encodeFile(path, fileName, compress, fileIndex);
                 }
                 Mode::Decrypt => {
                     if fileName.ends_with(".crypt") {
-                        decryptFile(path);
+                        decodeFile(path);
                     }
                 }
                 Mode::Merge => {}

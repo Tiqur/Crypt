@@ -1,5 +1,5 @@
 pub mod enterDir;
 pub mod compressBuffer;
 pub mod decompressBuffer;
-pub mod encryptFile;
-pub mod decryptFile;
+pub mod encodeFile;
+pub mod decodeFile;

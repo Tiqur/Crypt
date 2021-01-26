@@ -2,7 +2,19 @@ use std::fs;
 use libdeflater::CompressionLvl;
 use crate::Functions::compressBuffer::compressBuffer;
 
-pub fn encryptFile(path: String, fileName: String, compress: CompressionLvl, fileIndex: i32) {
+
+// https://stackoverflow.com/questions/37157926/is-there-a-method-like-javascripts-substr-in-rust
+trait StringUtils {
+    fn substring(&self, start: usize, len: usize) -> Self;
+}
+
+impl StringUtils for String {
+    fn substring(&self, start: usize, len: usize) -> Self {
+        self.chars().skip(start).take(len).collect()
+    }
+}
+
+pub fn encodeFile(path: String, fileName: String, compress: CompressionLvl, fileIndex: i32) {
     println!("Encrypting File: {}", path);
 
     // get buffer from file
@@ -17,22 +29,6 @@ pub fn encryptFile(path: String, fileName: String, compress: CompressionLvl, fil
     // append filename to end
     encodedCompressedBuffer = format!("{},{}", encodedCompressedBuffer, fileName);
 
-
-    /*
-       ENCRYPT HERE
-    */
-
-
-    // https://stackoverflow.com/questions/37157926/is-there-a-method-like-javascripts-substr-in-rust
-    trait StringUtils {
-        fn substring(&self, start: usize, len: usize) -> Self;
-    }
-
-    impl StringUtils for String {
-        fn substring(&self, start: usize, len: usize) -> Self {
-            self.chars().skip(start).take(len).collect()
-        }
-    }
 
     // writing individual files to prevent potential running out of memory when dealing with EXTREMELY large folders
     // write encrypted contents to new file

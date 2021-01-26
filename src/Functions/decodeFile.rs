@@ -3,7 +3,7 @@ use crate::Functions::decompressBuffer::decompressBuffer;
 use crate::Functions::compressBuffer::compressBuffer;
 use std::io::Read;
 
-pub fn decryptFile(path: String) {
+pub fn decodeFile(path: String) {
     println!("Decrypting File: {}", path);
 
     // get file buffer
