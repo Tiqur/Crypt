@@ -1,6 +1,7 @@
 use std::fs;
 use libdeflater::CompressionLvl;
 use crate::Functions::compressBuffer::compressBuffer;
+use std::io::Write;
 
 
 // https://stackoverflow.com/questions/37157926/is-there-a-method-like-javascripts-substr-in-rust
@@ -14,8 +15,8 @@ impl StringUtils for String {
     }
 }
 
-pub fn encodeFile(path: String, fileName: String, compress: CompressionLvl, fileIndex: i32) {
-    println!("Encoding File: {}", path);
+pub fn encodeFile(path: String, mut mergeFilePath: String, fileName: String, compress: CompressionLvl) {
+    println!("Encoding File: {} -> {}.crypt", path, mergeFilePath.clone());
 
     // get buffer from file
     let mut dataBuffer = fs::read(&path).unwrap();
@@ -27,25 +28,18 @@ pub fn encodeFile(path: String, fileName: String, compress: CompressionLvl, file
     let compressedBuffer = compressBuffer(dataBuffer.clone(), compress);
 
     // convert to base64
-    let encodedCompressedBuffer = base64::encode(compressedBuffer);
-
-    // // append filename to end
-    // encodedCompressedBuffer = format!("{},{}", encodedCompressedBuffer, fileName);
+    let mut encodedCompressedBuffer = base64::encode(compressedBuffer);
 
 
-    // writing individual files to prevent potential running out of memory when dealing with EXTREMELY large folders
-    // write encrypted contents to new file
-    let mut newFileName = String::new();
+    let mut file = fs::OpenOptions::new()
+        .write(true)
+        .append(true)
+        .open(mergeFilePath)
+        .unwrap();
 
-    if path.rfind("/").unwrap_or(0) != 0 {
-        newFileName.push_str(&path.substring(0, (path.rfind("/").unwrap()+1)))
-    }
+    file.write_all(format!("{},", encodedCompressedBuffer).as_ref());
 
-    newFileName.push_str(&*(fileIndex.to_string() + ".crypt"));
-
-    fs::write(newFileName, &encodedCompressedBuffer);
-
-    // delete old file
-    fs::remove_file(path).unwrap();
+   //  delete old file
+   fs::remove_file(path).unwrap();
 
 }

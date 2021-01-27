@@ -68,7 +68,7 @@ fn main() {
 
    }
    let compressionLevel = CompressionLvl::best();
-   //enterDir(String::from(path), compressionLevel, 0, Mode::Encode);
-   enterDir(String::from(path), compressionLevel, 0, Mode::Decode);
+   enterDir(String::from(path), compressionLevel, 0, Mode::Encode);
+   //enterDir(String::from(path), compressionLevel, 0, Mode::Decode);
    println!("Done!");
 }

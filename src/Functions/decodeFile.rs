@@ -9,7 +9,6 @@ pub fn decodeFile(path: String) {
     // get file buffer
     let mut encodedCompressedBuffer = fs::read(&path).unwrap();
 
-
     // decode from base64
     let compressedBuffer = base64::decode(&encodedCompressedBuffer).unwrap();
 

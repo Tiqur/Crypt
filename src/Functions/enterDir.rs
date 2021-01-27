@@ -1,12 +1,19 @@
 use libdeflater::CompressionLvl;
 use crate::Mode;
-use std::fs;
+use std::{fs, thread};
 use crate::Functions::encodeFile::encodeFile;
 use crate::Functions::decodeFile::decodeFile;
+use std::time::Duration;
+use std::fs::File;
+
+
+enum fileType {
+    Folder,
+    File
+}
 
 pub fn enterDir(pathDir: String, compress: CompressionLvl, depth: i32, mode: Mode) {
     let mut paths = fs::read_dir(pathDir.clone()).unwrap();
-    let mut fileIndex = 0;
     for path in paths {
         let mut fileName = path.as_ref().unwrap().clone().file_name().into_string().unwrap();
         let isFile = path.as_ref().unwrap().clone().file_type().unwrap().is_file();
@@ -15,45 +22,33 @@ pub fn enterDir(pathDir: String, compress: CompressionLvl, depth: i32, mode: Mod
 
         if depth > 0 {
             path = format!("{}/{}", pathDir, fileName);
+        } else {
+            // this is where the data will be stored
+            fs::write("protected.crypt", "");
         }
-
 
         if isFile && fileName != "Crypt.exe" {
             match mode {
                 Mode::Encode => {
-                    fileIndex+=1;
-                    encodeFile(path, fileName, compress, fileIndex);
+                    encodeFile(path,  "protected.crypt".to_owned(), fileName, compress);
                 }
                 Mode::Decode => {
-                    if fileName.ends_with(".crypt") {
-                        decodeFile(path);
-                    }
+                        //decodeFile(path);
                 }
             }
         } else if isDir {
-            println!("Entering Directory: {}", fileName);
             enterDir(path.clone(), compress, depth + 1, mode);
+
+            // remove dir when done
+            fs::remove_dir(path);
         } else { // unable to encrypt file
-            println!("[ERROR] Unable to encrypt: {}", fileName);
+            println!("[ERROR] Unable to encode / encrypt: {}", fileName);
         }
-
-
-
-        // match mode {
-        //     Mode::Encrypt => {
-        //         if isFile && fileName != "Crypt.exe" {
-        //             fileIndex+=1;
-        //             encryptFile(path, fileName, compress, fileIndex);
-        //         } else if isDir {
-        //             println!("Entering Directory: {}", fileName);
-        //             enterDir(path.clone(), compress, depth + 1, Mode::Encrypt);
-        //         } else { // unable to encrypt file
-        //             println!("[ERROR] Unable to encrypt: {}", fileName);
-        //         }
-        //     }
-        //     Mode::Decrypt => {}
-        //     Mode::Merge => {}
-        // }
 
     }
 }
+
+
+
+
+
