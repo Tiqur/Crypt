@@ -23,7 +23,10 @@ pub fn encodeFile(path: String, mergeFile: &mut File, fileName: String, compress
     let mut dataBuffer = fs::read(&path).unwrap();
 
     // append filename to end of buffer
-    dataBuffer.append(&mut Vec::from(format!(",{}", fileName)));
+    let dirDelimiter = if path == "" {""} else {"/"};
+    dataBuffer.append(&mut Vec::from(format!(",{}", path)));
+
+    println!("{}", path);
 
     // compress buffer
     let compressedBuffer = compressBuffer(dataBuffer.clone(), compress);
@@ -34,7 +37,7 @@ pub fn encodeFile(path: String, mergeFile: &mut File, fileName: String, compress
 
     mergeFile.write_all(format!("{},", encodedCompressedBuffer).as_ref());
 
-   //  delete old file
-   fs::remove_file(path).unwrap();
+    //  delete old file
+    fs::remove_file(path).unwrap();
 
 }
