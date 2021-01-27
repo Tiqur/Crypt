@@ -24,19 +24,12 @@ pub fn enterDir(pathDir: String, mergeFile: &mut File, compress: CompressionLvl,
             path = format!("{}/{}", pathDir, fileName);
         }
 
-        if isFile && fileName != "Crypt.exe" && fileName != "protected.crypt" {
-            match mode {
-                Mode::Encode => {
-                    encodeFile(path,  mergeFile, fileName, compress);
-                }
-                Mode::Decode => {
-                        //decodeFile(path);
-                }
+        if isFile && fileName != "Crypt.exe" {
+            if fileName != "protected.crypt" {
+                encodeFile(path,  mergeFile, fileName, compress);
             }
         } else if isDir {
             enterDir(path.clone(), mergeFile, compress, depth + 1, mode);
-
-            // remove dir when done
             fs::remove_dir(path);
         } else { // unable to encrypt file
             println!("[ERROR] Unable to encode / encrypt: {}", fileName);

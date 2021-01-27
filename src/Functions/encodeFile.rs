@@ -26,8 +26,6 @@ pub fn encodeFile(path: String, mergeFile: &mut File, fileName: String, compress
     let dirDelimiter = if path == "" {""} else {"/"};
     dataBuffer.append(&mut Vec::from(format!(",{}", path)));
 
-    println!("{}", path);
-
     // compress buffer
     let compressedBuffer = compressBuffer(dataBuffer.clone(), compress);
 

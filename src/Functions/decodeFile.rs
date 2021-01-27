@@ -7,24 +7,43 @@ pub fn decodeFile(path: String) {
     println!("Decoding File: {}", path);
 
     // get file buffer
-    let mut encodedCompressedBuffer = fs::read(&path).unwrap();
+    let mut fileString = fs::read_to_string(&path).unwrap();
 
-    // decode from base64
-    let compressedBuffer = base64::decode(&encodedCompressedBuffer).unwrap();
+    // removes hanging comma from file
+    fileString.pop();
 
-    // decompress buffer
-    let mut dataBuffer = decompressBuffer(compressedBuffer);
+    // split data into chunks that represent files
+    let encodedFiles = fileString.split(",");
 
-    // extract filename
-    let indexOfComma = dataBuffer.iter().rposition(|r| r == &b',').unwrap()+1;
-    let filename = &dataBuffer.clone()[indexOfComma..dataBuffer.len()];
+    // write each file
+    for encodedFile in encodedFiles {
+        // convert to bytes
+        let encodedFileBytes = encodedFile.as_bytes();
 
-    // truncate to only hold file data
-    dataBuffer.truncate(indexOfComma-1);
+        // decode from base64
+        let compressedBuffer = base64::decode(&encodedFileBytes).unwrap();
 
-    // convert filename to str
-    let strFilename = std::str::from_utf8(filename).unwrap();
-    fs::write(strFilename, dataBuffer);
+        // decompress buffer
+        let mut dataBuffer = decompressBuffer(compressedBuffer);
+
+        // extract path with name
+        let indexOfComma = dataBuffer.iter().rposition(|r| r == &b',').unwrap()+1;
+        let filePath = &dataBuffer.clone()[indexOfComma..dataBuffer.len()];
+        let fileNameDelimiterIndex = filePath.iter().rposition(|r| r == &b'/').unwrap();
+        let filePathWithoutName = String::from_utf8(Vec::from(&filePath.clone()[0..fileNameDelimiterIndex])).unwrap();
+
+        // truncate to only hold file data
+        dataBuffer.truncate(indexOfComma-1);
+
+        // convert filename to str
+        let strPath = std::str::from_utf8(filePath).unwrap();
+
+        // create directory if needed
+        fs::create_dir_all(filePathWithoutName);
+
+        // write file
+        fs::write(strPath, dataBuffer);
+    }
 
     // delete old file
     fs::remove_file(path).unwrap();

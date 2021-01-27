@@ -10,6 +10,7 @@ use libdeflater::{Compressor, CompressionLvl, Decompressor};
 
 mod Functions;
 use crate::Functions::enterDir::enterDir;
+use crate::Functions::decodeFile::decodeFile;
 
 
 #[derive(Clone, Copy)]
@@ -69,22 +70,18 @@ fn main() {
    }
 
 
-
-
    // this is where the data will be stored
    let mut file = fs::OpenOptions::new()
-       .write(true)
        .append(true)
-       .create_new(true)
+       .create(true)
        .open("protected.crypt")
        .unwrap();
 
 
-
-
-
    let compressionLevel = CompressionLvl::best();
-   enterDir(path.to_owned(), &mut file, compressionLevel, 0, Mode::Encode);
-   //enterDir(path.to_owned(), compressionLevel, 0, Mode::Decode);
+   //enterDir(path.to_owned(), &mut file, compressionLevel, 0, Mode::Encode);
+   let tempPath = "protected.crypt";
+   decodeFile(tempPath.to_owned());
+
    println!("Done!");
 }
