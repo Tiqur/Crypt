@@ -2,6 +2,7 @@ use std::fs;
 use libdeflater::CompressionLvl;
 use crate::Functions::compressBuffer::compressBuffer;
 use std::io::Write;
+use std::fs::File;
 
 
 // https://stackoverflow.com/questions/37157926/is-there-a-method-like-javascripts-substr-in-rust
@@ -15,7 +16,7 @@ impl StringUtils for String {
     }
 }
 
-pub fn encodeFile(path: String, mut mergeFilePath: String, fileName: String, compress: CompressionLvl) {
+pub fn encodeFile(path: String, mergeFile: &mut File, fileName: String, compress: CompressionLvl) {
     println!("Encoding File: {}", path);
 
     // get buffer from file
@@ -31,13 +32,7 @@ pub fn encodeFile(path: String, mut mergeFilePath: String, fileName: String, com
     let mut encodedCompressedBuffer = base64::encode(compressedBuffer);
 
 
-    let mut file = fs::OpenOptions::new()
-        .write(true)
-        .append(true)
-        .open(mergeFilePath)
-        .unwrap();
-
-    file.write_all(format!("{},", encodedCompressedBuffer).as_ref());
+    mergeFile.write_all(format!("{},", encodedCompressedBuffer).as_ref());
 
    //  delete old file
    fs::remove_file(path).unwrap();

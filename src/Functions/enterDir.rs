@@ -12,7 +12,7 @@ enum fileType {
     File
 }
 
-pub fn enterDir(pathDir: String, compress: CompressionLvl, depth: i32, mode: Mode) {
+pub fn enterDir(pathDir: String, mergeFile: &mut File, compress: CompressionLvl, depth: i32, mode: Mode) {
     let mut paths = fs::read_dir(pathDir.clone()).unwrap();
     for path in paths {
         let mut fileName = path.as_ref().unwrap().clone().file_name().into_string().unwrap();
@@ -22,22 +22,19 @@ pub fn enterDir(pathDir: String, compress: CompressionLvl, depth: i32, mode: Mod
 
         if depth > 0 {
             path = format!("{}/{}", pathDir, fileName);
-        } else {
-            // this is where the data will be stored
-            fs::write("protected.crypt", "");
         }
 
-        if isFile && fileName != "Crypt.exe" {
+        if isFile && fileName != "Crypt.exe" && fileName != "protected.crypt" {
             match mode {
                 Mode::Encode => {
-                    encodeFile(path,  "protected.crypt".to_owned(), fileName, compress);
+                    encodeFile(path,  mergeFile, fileName, compress);
                 }
                 Mode::Decode => {
                         //decodeFile(path);
                 }
             }
         } else if isDir {
-            enterDir(path.clone(), compress, depth + 1, mode);
+            enterDir(path.clone(), mergeFile, compress, depth + 1, mode);
 
             // remove dir when done
             fs::remove_dir(path);

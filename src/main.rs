@@ -67,8 +67,24 @@ fn main() {
    } else {
 
    }
+
+
+
+
+   // this is where the data will be stored
+   let mut file = fs::OpenOptions::new()
+       .write(true)
+       .append(true)
+       .create_new(true)
+       .open("protected.crypt")
+       .unwrap();
+
+
+
+
+
    let compressionLevel = CompressionLvl::best();
-   enterDir(String::from(path), compressionLevel, 0, Mode::Encode);
-   //enterDir(String::from(path), compressionLevel, 0, Mode::Decode);
+   enterDir(path.to_owned(), &mut file, compressionLevel, 0, Mode::Encode);
+   //enterDir(path.to_owned(), compressionLevel, 0, Mode::Decode);
    println!("Done!");
 }
