@@ -16,7 +16,7 @@ impl StringUtils for String {
 }
 
 pub fn encodeFile(path: String, mut mergeFilePath: String, fileName: String, compress: CompressionLvl) {
-    println!("Encoding File: {} -> {}.crypt", path, mergeFilePath.clone());
+    println!("Encoding File: {}", path);
 
     // get buffer from file
     let mut dataBuffer = fs::read(&path).unwrap();
