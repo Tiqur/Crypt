@@ -63,25 +63,36 @@ fn main() {
       return;
    }
 
+
+
+
+
+
    if encrypt {
 
-   } else {
+      // this is where the data will be stored
+      let mut file = fs::OpenOptions::new()
+          .append(true)
+          .create(true)
+          .open("protected.crypt")
+          .unwrap();
 
+
+      let compressionLevel = CompressionLvl::best();
+      enterDir(path.to_owned(), &mut file, compressionLevel, 0, Mode::Encode);
+   }
+
+   if decrypt {
+      let tempPath = "protected.crypt";
+      decodeFile(tempPath.to_owned());
    }
 
 
-   // this is where the data will be stored
-   let mut file = fs::OpenOptions::new()
-       .append(true)
-       .create(true)
-       .open("protected.crypt")
-       .unwrap();
 
 
-   let compressionLevel = CompressionLvl::best();
-   //enterDir(path.to_owned(), &mut file, compressionLevel, 0, Mode::Encode);
-   let tempPath = "protected.crypt";
-   decodeFile(tempPath.to_owned());
+
+
+
 
    println!("Done!");
 }

@@ -4,7 +4,6 @@ use crate::Functions::compressBuffer::compressBuffer;
 use std::io::Read;
 
 pub fn decodeFile(path: String) {
-    println!("Decoding File: {}", path);
 
     // get file buffer
     let mut fileString = fs::read_to_string(&path).unwrap();
@@ -31,6 +30,8 @@ pub fn decodeFile(path: String) {
         let filePath = &dataBuffer.clone()[indexOfComma..dataBuffer.len()];
         let fileNameDelimiterIndex = filePath.iter().rposition(|r| r == &b'/').unwrap();
         let filePathWithoutName = String::from_utf8(Vec::from(&filePath.clone()[0..fileNameDelimiterIndex])).unwrap();
+
+        println!("Decoding File: {}",  String::from_utf8(Vec::from(filePath)).unwrap());
 
         // truncate to only hold file data
         dataBuffer.truncate(indexOfComma-1);
